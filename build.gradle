@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+    id 'io.freefair.lombok' version '8.6'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation libs.junit
+    testImplementation libs.hamcrest
+}
+
+test {
+    useJUnitPlatform()
+}
