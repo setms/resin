@@ -38,7 +38,7 @@ public class ProcessToDependencies implements Transformation<SoftwareProcess, So
             case ReadModel readModel ->
                 edgesForReadModel(readModel, process);
             default ->
-                Stream.empty();
+                throw new IllegalStateException("Unknown vertex type: %s".formatted(vertex.getClass().getSimpleName()));
         };
     }
 

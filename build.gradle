@@ -1,7 +1,10 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.6'
+    id 'info.solidsoft.pitest' version '1.15.0'
 }
+
+group = 'com.remonsinnema.resin2modules'
 
 repositories {
     mavenCentral()
@@ -14,4 +17,14 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+def userHomeDir = System.properties['user.home']
+def pitestHistoryFilePath = "${userHomeDir}/.pitest/cache/${project.group}.${project.name}.${project.version}_pitest_history.bin"
+pitest {
+    junit5PluginVersion = '1.2.1'
+    mutationThreshold = 79
+    historyInputLocation = pitestHistoryFilePath
+    historyOutputLocation = pitestHistoryFilePath
+    features = ["+auto_threads"]
 }
