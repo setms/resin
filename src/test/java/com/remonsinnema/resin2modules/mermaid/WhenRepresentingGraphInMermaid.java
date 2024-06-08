@@ -1,6 +1,7 @@
 package com.remonsinnema.resin2modules.mermaid;
 
 import com.remonsinnema.resin2modules.graph.Graph;
+import com.remonsinnema.resin2modules.graph.Representation;
 import com.remonsinnema.resin2modules.graph.TestConstraints;
 import com.remonsinnema.resin2modules.graph.TestVertex;
 import com.remonsinnema.resin2modules.process.*;
@@ -14,7 +15,7 @@ import static org.hamcrest.Matchers.is;
 
 class WhenRepresentingGraphInMermaid {
 
-    private final MermaidRepresentation representation = new MermaidRepresentation();
+    private final Representation representation = new MermaidRepresentation();
 
     @Test
     void shouldRenderEmptyGraph() {
@@ -39,12 +40,12 @@ class WhenRepresentingGraphInMermaid {
 
         assertThat(mermaid, is("""
                 graph
-                  v1TestVertex[v1]
-                  v2TestVertex[v2]
-                  v3TestVertex[v3]
-                  
-                  v1TestVertex --> v3TestVertex
-                  v2TestVertex --> v3TestVertex
+                    v1TestVertex[v1]
+                    v2TestVertex[v2]
+                    v3TestVertex[v3]
+                    
+                    v1TestVertex --> v3TestVertex
+                    v2TestVertex --> v3TestVertex
                 """));
     }
 
@@ -76,6 +77,24 @@ class WhenRepresentingGraphInMermaid {
         assertThat(mermaid, containsString(">cle]"));
         assertThat(mermaid, containsString("[exs]"));
         assertThat(mermaid, containsString("usrPerson --> cmdCommand"));
+    }
+
+    @Test
+    void shouldUseCamelCaseForVertices() {
+        var graph = new Graph(new TestConstraints());
+        var v1 = graph.vertex(new TestVertex("V1"));
+        var v2 = graph.vertex(new TestVertex("Vertex two three"));
+        graph.edge(v1, v2);
+
+        var mermaid = representation.apply(graph);
+
+        assertThat(mermaid, is("""
+                graph
+                    v1TestVertex[V1]
+                    vertexTwoThreeTestVertex[Vertex two three]
+                    
+                    v1TestVertex --> vertexTwoThreeTestVertex
+                """));
     }
 
 }
