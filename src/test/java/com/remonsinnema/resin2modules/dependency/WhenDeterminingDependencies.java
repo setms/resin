@@ -8,6 +8,7 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class WhenDeterminingDependencies {
@@ -36,6 +37,29 @@ class WhenDeterminingDependencies {
         assertThat(dependencies.vertices().anyMatch(cle::equals), is(false));
         assertThat(dependencies.vertices().anyMatch(mpl::equals), is(false));
         assertThat(dependencies.vertices().anyMatch(exs::equals), is(false));
+        assertThrows(IllegalArgumentException.class, () ->
+                dependencies.vertex(new Command("cmd")));
+    }
+
+    @Test
+    void shouldRestrictEdges() {
+        var dependencies = new SoftwareProcessDependencies();
+        var agg = dependencies.vertex(new Aggregate("agg", emptyList()));
+        var rdm = dependencies.vertex(new ReadModel("rdm", emptyList()));
+        var apl = dependencies.vertex(new AutomaticPolicy("apl"));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                dependencies.edge(agg, agg));
+        assertThrows(IllegalArgumentException.class, () ->
+                dependencies.edge(agg, rdm));
+        assertThrows(IllegalArgumentException.class, () ->
+                dependencies.edge(apl, apl));
+        assertThrows(IllegalArgumentException.class, () ->
+                dependencies.edge(apl, agg));
+        assertThrows(IllegalArgumentException.class, () ->
+                dependencies.edge(rdm, rdm));
+        assertThrows(IllegalArgumentException.class, () ->
+                dependencies.edge(rdm, apl));
     }
 
     @Test
@@ -120,14 +144,15 @@ class WhenDeterminingDependencies {
         var process = new SoftwareProcess();
         var agg = process.vertex(new Aggregate("agg", List.of("entity")));
         var rdm = process.vertex(new ReadModel("rdm", List.of("entity")));
+        var rdm2 = process.vertex(new ReadModel("rdm2", List.of("entity")));
         var evt1 = process.vertex(new Event("evt1"));
         var evt2 = process.vertex(new Event("evt2"));
-        process.edge(agg, evt1);
+        process.edges(agg, evt1, rdm2);
         process.edge(evt2, rdm);
 
         var dependencies = processToDependencies.apply(process);
 
-        assertThat(dependencies.edges().anyMatch(e -> e.equals(rdm, agg)), is(false));
+        assertThat(dependencies.edges().noneMatch(e -> e.equals(rdm, agg)), is(true));
     }
 
 }

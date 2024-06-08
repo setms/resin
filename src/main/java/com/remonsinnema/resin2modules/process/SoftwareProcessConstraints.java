@@ -16,10 +16,12 @@ class SoftwareProcessConstraints implements Constraints {
     private final Map<Class<? extends Vertex>, List<Class<? extends Vertex>>> allowedPredecessors = Map.of(
         Aggregate.class, List.of(Command.class),
         Command.class, List.of(Person.class, Policy.class, ExternalSystem.class),
-        DomainEvent.class, List.of(Aggregate.class, ExternalSystem.class),
+        Event.class, List.of(Aggregate.class, ExternalSystem.class),
+        ClockEvent.class, List.of(),
         ExternalSystem.class, List.of(Person.class, Event.class),
         Person.class, List.of(ReadModel.class),
-        Policy.class, List.of(DomainEvent.class, Person.class, ReadModel.class),
+        AutomaticPolicy.class, List.of(DomainEvent.class, ReadModel.class),
+        ManualPolicy.class, List.of(DomainEvent.class, Person.class),
         ReadModel.class, List.of(Event.class)
     );
 

@@ -35,10 +35,8 @@ public class ProcessToDependencies implements Transformation<SoftwareProcess, So
                     edgesForAggregate(aggregate, process);
             case AutomaticPolicy policy ->
                 edgesForPolicy(policy, process);
-            case ReadModel readModel ->
-                edgesForReadModel(readModel, process);
             default ->
-                throw new IllegalStateException("Unknown vertex type: %s".formatted(vertex.getClass().getSimpleName()));
+                edgesForReadModel((ReadModel) vertex, process);
         };
     }
 

@@ -11,7 +11,7 @@ public record Edge(@NonNull Vertex from, @NonNull Vertex to) {
 
     @Override
     public String toString() {
-        return "%s -> %s".formatted(from.id(), to.id());
+        return "%s -> %s".formatted(from.name(), to.name());
     }
 
 }

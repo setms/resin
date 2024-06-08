@@ -2,7 +2,8 @@ package com.remonsinnema.resin2modules.graph;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 
@@ -58,6 +59,23 @@ public class Graph {
     public Stream<Vertex> edgesTo(Vertex to) {
         return edges().filter(e -> e.to().equals(to))
                 .map(Edge::from);
+    }
+
+    @Override
+    public String toString() {
+        var result = new StringBuilder();
+        result.append("graph {\n");
+        vertices()
+                .map(Vertex::name)
+                .sorted()
+                .map("    %s\n"::formatted)
+                .forEach(result::append);
+        edges().map(Edge::toString)
+                .sorted()
+                .map("    %s\n"::formatted)
+                .forEach(result::append);
+        result.append("}");
+        return result.toString();
     }
 
 }

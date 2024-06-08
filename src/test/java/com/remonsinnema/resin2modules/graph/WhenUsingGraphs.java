@@ -97,4 +97,25 @@ class WhenUsingGraphs {
         assertThat(graph.edgesTo(v3).sorted().toList(), is(List.of(v1, v2)));
     }
 
+    @Test
+    void shouldRepresentGraphAsString() {
+        var v1 = graph.vertex(new TestVertex("v1"));
+        var v2 = graph.vertex(new TestVertex("v2"));
+        var v3 = graph.vertex(new TestVertex("v3"));
+        graph.edges(v1, v2, v3);
+        graph.edge(v1, v3);
+
+        var representation = graph.toString();
+
+        assertThat(representation, is("""
+                graph {
+                    v1
+                    v2
+                    v3
+                    v1 -> v2
+                    v1 -> v3
+                    v2 -> v3
+                }"""));
+    }
+
 }
