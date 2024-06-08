@@ -3,9 +3,10 @@ package com.remonsinnema.resin2modules.graph;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -116,6 +117,41 @@ class WhenUsingGraphs {
                     v1 -> v3
                     v2 -> v3
                 }"""));
+    }
+
+    @Test
+    void shouldSortVertices() {
+        var v3 = graph.vertex(new TestVertex("v3"));
+        var v2 = graph.vertex(new TestVertex("v2"));
+        var v1 = graph.vertex(new TestVertex("v1"));
+
+        var sorted = graph.vertices().sorted().toList();
+
+        assertThat(sorted, contains(v1, v2, v3));
+    }
+
+    @Test
+    void shouldSortEdges() {
+        var v1 = graph.vertex(new TestVertex("v1"));
+        var v2 = graph.vertex(new TestVertex("v2"));
+        var v3 = graph.vertex(new TestVertex("v3"));
+        graph.edge(v3, v2);
+        graph.edge(v3, v1);
+        graph.edge(v2, v3);
+        graph.edge(v2, v1);
+        graph.edge(v1, v3);
+        graph.edge(v1, v2);
+
+        var sorted = graph.edges().sorted().toList();
+
+        assertThat(sorted, contains(
+                new Edge(v1, v2),
+                new Edge(v1, v3),
+                new Edge(v2, v1),
+                new Edge(v2, v3),
+                new Edge(v3, v1),
+                new Edge(v3, v2)
+        ));
     }
 
 }

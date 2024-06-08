@@ -2,6 +2,7 @@ package com.remonsinnema.resin2modules.graph;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -13,6 +14,11 @@ public class Graph {
     private final Set<Vertex> vertices = new LinkedHashSet<>();
     private final Set<Edge> edges = new LinkedHashSet<>();
     private final Constraints constraints;
+    private final CycleDetector cycleDetector;
+
+    public Graph(Constraints constraints) {
+        this(constraints, new DetectCyclesViaExhaustiveSearch());
+    }
 
     public <T extends Vertex> T vertex(T vertex) {
         if (constraints.canAddVertex(vertex)) {
@@ -59,6 +65,10 @@ public class Graph {
     public Stream<Vertex> edgesTo(Vertex to) {
         return edges().filter(e -> e.to().equals(to))
                 .map(Edge::from);
+    }
+
+    public Collection<Cycle> cycles() {
+        return cycleDetector.findAllCyclesIn(this);
     }
 
     @Override
