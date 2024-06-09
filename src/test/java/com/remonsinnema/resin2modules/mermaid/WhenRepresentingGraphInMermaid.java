@@ -4,8 +4,12 @@ import com.remonsinnema.resin2modules.graph.Graph;
 import com.remonsinnema.resin2modules.graph.Representation;
 import com.remonsinnema.resin2modules.graph.TestConstraints;
 import com.remonsinnema.resin2modules.graph.TestVertex;
+import com.remonsinnema.resin2modules.module.Module;
+import com.remonsinnema.resin2modules.module.Modules;
 import com.remonsinnema.resin2modules.process.*;
 import org.junit.jupiter.api.Test;
+
+import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,6 +54,24 @@ class WhenRepresentingGraphInMermaid {
     }
 
     @Test
+    void shouldUseCamelCaseForVertices() {
+        var graph = new Graph(new TestConstraints());
+        var v1 = graph.vertex(new TestVertex("V1"));
+        var v2 = graph.vertex(new TestVertex("Vertex two three"));
+        graph.edge(v1, v2);
+
+        var mermaid = representation.apply(graph);
+
+        assertThat(mermaid, is("""
+                graph
+                    v1TestVertex[V1]
+                    vertexTwoThreeTestVertex[Vertex two three]
+                
+                    v1TestVertex --> vertexTwoThreeTestVertex
+                """));
+    }
+
+    @Test
     void shouldRenderSpecialShapesForResinSymbols() {
         var graph = new SoftwareProcess();
         var person = graph.vertex(new Person("usr"));
@@ -80,20 +102,23 @@ class WhenRepresentingGraphInMermaid {
     }
 
     @Test
-    void shouldUseCamelCaseForVertices() {
-        var graph = new Graph(new TestConstraints());
-        var v1 = graph.vertex(new TestVertex("V1"));
-        var v2 = graph.vertex(new TestVertex("Vertex two three"));
-        graph.edge(v1, v2);
+    void shouldRenderModule() {
+        var process = new SoftwareProcess();
+        var cmd = process.vertex(new Command("cmd"));
+        var agg = process.vertex(new Aggregate("agg", emptyList()));
+        var evt = process.vertex(new Event("evt"));
+        var modules = new Modules();
+        modules.vertex(new Module("module", Set.of(cmd, agg, evt)));
 
-        var mermaid = representation.apply(graph);
+        var mermaid = representation.apply(modules);
 
         assertThat(mermaid, is("""
                 graph
-                    v1TestVertex[V1]
-                    vertexTwoThreeTestVertex[Vertex two three]
-                    
-                    v1TestVertex --> vertexTwoThreeTestVertex
+                    moduleModule["<b>module</b>
+                    - agg
+                    - cmd
+                    - evt"]
+                
                 """));
     }
 

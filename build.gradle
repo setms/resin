@@ -23,7 +23,7 @@ def userHomeDir = System.properties['user.home']
 def pitestHistoryFilePath = "${userHomeDir}/.pitest/cache/${project.group}.${project.name}.${project.version}_pitest_history.bin"
 pitest {
     junit5PluginVersion = '1.2.1'
-    mutationThreshold = 95
+    mutationThreshold = 98
     historyInputLocation = pitestHistoryFilePath
     historyOutputLocation = pitestHistoryFilePath
     features = ["+auto_threads"]

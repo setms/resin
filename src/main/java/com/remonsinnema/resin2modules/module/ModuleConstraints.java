@@ -14,7 +14,7 @@ public class ModuleConstraints implements Constraints {
 
     @Override
     public boolean canAddEdge(Edge edge) {
-        return canAddVertex(edge.from()) && canAddVertex(edge.to());
+        return true;
     }
 
 }

@@ -1,9 +1,9 @@
-package com.remonsinnema.resin2modules.dependency;
+package com.remonsinnema.resin2modules.module;
 
 import com.remonsinnema.resin2modules.graph.Graph;
 
 
-public class SoftwareProcessDependencies extends Graph {
+class SoftwareProcessDependencies extends Graph {
 
     public SoftwareProcessDependencies() {
         super(new DependencyConstraints());

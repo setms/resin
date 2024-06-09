@@ -1,4 +1,4 @@
-package com.remonsinnema.resin2modules.dependency;
+package com.remonsinnema.resin2modules.module;
 
 import com.remonsinnema.resin2modules.process.*;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-class WhenDeterminingDependencies {
+class WhenDiscoveringDependencies {
 
     private final ProcessToDependencies processToDependencies = new ProcessToDependencies();
 

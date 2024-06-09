@@ -1,4 +1,4 @@
-package com.remonsinnema.resin2modules.dependency;
+package com.remonsinnema.resin2modules.module;
 
 import com.remonsinnema.resin2modules.graph.Edge;
 import com.remonsinnema.resin2modules.graph.Transformation;
@@ -8,7 +8,7 @@ import com.remonsinnema.resin2modules.process.*;
 import java.util.stream.Stream;
 
 
-public class ProcessToDependencies implements Transformation<SoftwareProcess, SoftwareProcessDependencies> {
+class ProcessToDependencies implements Transformation<SoftwareProcess, SoftwareProcessDependencies> {
 
     @Override
     public SoftwareProcessDependencies apply(SoftwareProcess process) {

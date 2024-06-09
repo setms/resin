@@ -2,17 +2,16 @@ package com.remonsinnema.resin2modules.graph;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.stream.Stream;
 
 
 @RequiredArgsConstructor
 public class Graph {
 
-    private final Set<Vertex> vertices = new LinkedHashSet<>();
-    private final Set<Edge> edges = new LinkedHashSet<>();
+    private final Collection<Vertex> vertices = new ArrayList<>();
+    private final Collection<Edge> edges = new ArrayList<>();
     private final Constraints constraints;
     private final CycleDetector cycleDetector;
 
@@ -22,7 +21,9 @@ public class Graph {
 
     public <T extends Vertex> T vertex(T vertex) {
         if (constraints.canAddVertex(vertex)) {
-            vertices.add(vertex);
+            if (!vertices.contains(vertex)) {
+                vertices.add(vertex);
+            }
             return vertex;
         }
         throw new IllegalArgumentException("Can't add %s".formatted(vertex));
@@ -36,6 +37,9 @@ public class Graph {
             throw new IllegalArgumentException("Unknown <to> vertex %s".formatted(to));
         }
         var result = new Edge(from, to);
+        if (edges.contains(result)) {
+            return;
+        }
         if (constraints.canAddEdge(result)) {
             edges.add(result);
             return;

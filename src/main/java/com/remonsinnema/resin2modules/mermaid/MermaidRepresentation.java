@@ -3,6 +3,7 @@ package com.remonsinnema.resin2modules.mermaid;
 import com.remonsinnema.resin2modules.graph.Graph;
 import com.remonsinnema.resin2modules.graph.Representation;
 import com.remonsinnema.resin2modules.graph.Vertex;
+import com.remonsinnema.resin2modules.module.Module;
 import com.remonsinnema.resin2modules.process.*;
 
 import static java.lang.Character.toLowerCase;
@@ -18,7 +19,7 @@ public class MermaidRepresentation implements Representation {
 
         if (graph.vertices().findAny().isPresent()) {
             graph.vertices()
-                    .map(v -> "    %s%s%s%s\n".formatted(idOf(v), openingFor(v), v.name(), closingFor(v)))
+                    .map(v -> "    %s%s%s%s\n".formatted(idOf(v), openingFor(v), nameOf(v), closingFor(v)))
                     .forEach(result::append);
             result.append('\n');
             graph.edges()
@@ -66,6 +67,22 @@ public class MermaidRepresentation implements Representation {
             case Command command-> "}}";
             default -> "]";
         };
+    }
+
+    private String nameOf(Vertex vertex) {
+        if (vertex instanceof Module module) {
+            var result = new StringBuilder();
+            result.append("\"<b>").append(module.name()).append("</b>\n");
+            module.contents().stream()
+                    .sorted()
+                    .map(Vertex::name)
+                    .map("    - %s%n"::formatted)
+                    .forEach(result::append);
+            result.deleteCharAt(result.length() - 1);
+            result.append('"');
+            return result.toString();
+        }
+        return vertex.name();
     }
 
 }
