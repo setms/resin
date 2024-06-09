@@ -1,15 +1,12 @@
 package com.remonsinnema.resin2modules.module;
 
-import com.remonsinnema.resin2modules.graph.Cycle;
 import com.remonsinnema.resin2modules.graph.Transformation;
 import com.remonsinnema.resin2modules.graph.Vertex;
 import com.remonsinnema.resin2modules.process.Aggregate;
 import com.remonsinnema.resin2modules.process.AutomaticPolicy;
 import com.remonsinnema.resin2modules.process.ReadModel;
 
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.SequencedCollection;
 
 import static java.util.function.Predicate.not;
 
@@ -20,33 +17,11 @@ class DependenciesToModules implements Transformation<SoftwareProcessDependencie
     public Modules apply(SoftwareProcessDependencies dependencies) {
         var result = new Modules();
 
-        addModuleForEachCycle(dependencies, result);
         addModuleForEachUnassignedAggregate(dependencies, result);
         assignReadModelToModuleContainingAggregate(dependencies, result);
         assignPolicyToModuleContainingReadModel(dependencies, result);
 
         return result;
-    }
-
-    private void addModuleForEachCycle(SoftwareProcessDependencies dependencies, Modules modules) {
-        dependencies.cycles()
-                .stream()
-                .map(this::cycleToModule)
-                .forEach(modules::vertex);
-    }
-
-    private Module cycleToModule(Cycle dependencyCycle) {
-        return new Module(
-                mainAggregateIn(dependencyCycle.vertices()).name(),
-                new LinkedHashSet<>(dependencyCycle.vertices()));
-    }
-
-    private Aggregate mainAggregateIn(SequencedCollection<Vertex> elements) {
-        return elements.stream()
-                .filter(Aggregate.class::isInstance)
-                .map(Aggregate.class::cast)
-                .findAny()
-                .orElseThrow();
     }
 
     private void addModuleForEachUnassignedAggregate(SoftwareProcessDependencies dependencies, Modules modules) {

@@ -19,6 +19,7 @@ public class ProcessToModules implements Transformation<SoftwareProcess, Modules
 
         var result = new DependenciesToModules().apply(dependencies);
 
+        addUnassignedPoliciesToModulesContainingTheirAggregates(process, result);
         addCommandsToModulesContainingTheirAggregates(process, result);
         addEventsToModulesContainingTheirAggregates(process, result);
         addUnassignedEventsToModulesContainingTheirPolicies(process, result);
@@ -26,6 +27,27 @@ public class ProcessToModules implements Transformation<SoftwareProcess, Modules
         addModuleDependencies(process, result);
 
         return result;
+    }
+
+    private void addUnassignedPoliciesToModulesContainingTheirAggregates(SoftwareProcess process, Modules modules) {
+        process.vertices()
+                .filter(AutomaticPolicy.class::isInstance)
+                .filter(not(modules::contains))
+                .forEach(policy -> addPolicyToModuleContainingItsAggregate(policy, process, modules));
+
+    }
+
+    private void addPolicyToModuleContainingItsAggregate(Vertex policy, SoftwareProcess process, Modules modules) {
+        var aggregateModules = process.edgesFrom(policy)
+                .filter(Command.class::isInstance)
+                .flatMap(process::edgesFrom)
+                .filter(Aggregate.class::isInstance)
+                .map(modules::find)
+                .flatMap(Optional::stream)
+                .toList();
+        if (aggregateModules.size() == 1) {
+            aggregateModules.getFirst().add(policy);
+        }
     }
 
     private void addCommandsToModulesContainingTheirAggregates(SoftwareProcess process, Modules modules) {

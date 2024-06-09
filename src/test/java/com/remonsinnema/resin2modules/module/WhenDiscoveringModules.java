@@ -32,6 +32,85 @@ class WhenDiscoveringModules {
     }
 
     @Test
+    void shouldAddEverythingInCycleToSameModule() {
+        var process = new SoftwareProcess();
+        var cmd = process.vertex(new Command("cmd"));
+        var agg = process.vertex(new Aggregate("agg", List.of("data")));
+        var evt = process.vertex(new Event("evt"));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var rdm = process.vertex(new ReadModel("rdm", List.of("data")));
+        process.edges(rdm, apl, cmd, agg, evt, rdm);
+
+        var modules = new ProcessToModules().apply(process);
+
+        assertThat(modules.vertices().toList(), contains(new Module(agg.name(), Set.of(cmd, agg, evt, apl, rdm))));
+    }
+
+    @Test
+    void shouldAddPolicyToModuleContainingAggregate() {
+        var process = new SoftwareProcess();
+        var cmd = process.vertex(new Command("cmd"));
+        var agg = process.vertex(new Aggregate("agg", List.of("data")));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        process.edges(apl, cmd, agg);
+
+        var modules = new ProcessToModules().apply(process);
+
+        assertThat(modules.vertices().toList(), contains(new Module(agg.name(), Set.of(cmd, agg, apl))));
+    }
+
+    @Test
+    void shouldAssignModuleDependenciesViaEvent() {
+        var process = new SoftwareProcess();
+        var usr = process.vertex(new Person("usr"));
+        var cmd1 = process.vertex(new Command("cmd1"));
+        var agg1 = process.vertex(new Aggregate("agg1", List.of("data1")));
+        var evt = process.vertex(new Event("evt"));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var cmd2 = process.vertex(new Command("cmd2"));
+        var agg2 = process.vertex(new Aggregate("agg2", List.of("data2")));
+        process.edges(usr, cmd1, agg1, evt, apl, cmd2, agg2);
+
+        var modules = new ProcessToModules().apply(process);
+
+        assertThat(modules.vertices().count(), is(2L));
+        var module1 = modules.find(agg1).orElseThrow();
+        var module2 = modules.find(agg2).orElseThrow();
+        assertThat(module1, not(module2));
+        assertThat(modules.edges().count(), is(1L));
+        var moduleDependency = modules.edges().findFirst().orElseThrow();
+        assertThat(moduleDependency.from(), is(module2));
+        assertThat(moduleDependency.to(), is(module1));
+    }
+
+    @Test
+    void shouldAssignModuleDependenciesViaCommand() {
+        var process = new SoftwareProcess();
+        var usr = process.vertex(new Person("usr"));
+        var cmd1 = process.vertex(new Command("cmd1"));
+        var agg1 = process.vertex(new Aggregate("agg1", List.of("data1")));
+        var evt = process.vertex(new Event("evt"));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var rdm = process.vertex(new ReadModel("rdm", List.of("data1")));
+        var cmd2 = process.vertex(new Command("cmd2"));
+        var agg2 = process.vertex(new Aggregate("agg2", List.of("data2")));
+        process.edges(usr, cmd1, agg1, evt, apl, cmd2, agg2);
+        process.edge(evt, rdm);
+        process.edge(rdm, apl);
+
+        var modules = new ProcessToModules().apply(process);
+
+        assertThat(modules.vertices().count(), is(2L));
+        var module1 = modules.find(agg1).orElseThrow();
+        var module2 = modules.find(agg2).orElseThrow();
+        assertThat(module1, not(module2));
+        assertThat(modules.edges().count(), is(1L));
+        var moduleDependency = modules.edges().findFirst().orElseThrow();
+        assertThat(moduleDependency.from(), is(module1));
+        assertThat(moduleDependency.to(), is(module2));
+    }
+
+    @Test
     void shouldDiscoverGdprMiddlewareModules() {
         var process = new SoftwareProcess();
 
@@ -162,7 +241,9 @@ class WhenDiscoveringModules {
         process.edges(seller, rejectOffer, trades, offerRejected, checkUserPreferences);
         process.edge(notification, buyer);
 
-        new ProcessToModules().apply(process);
+        var modules = new ProcessToModules().apply(process);
+
+        assertThat(modules.vertices().count(), is(6L));
     }
 
 }
