@@ -1,2 +1,3 @@
-# resin2modules
-Convert requirements in RESIN format to a list of modules.
+# resin2domains
+
+Convert requirements in RESIN format to a directed graph of domains.
