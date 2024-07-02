@@ -73,22 +73,28 @@ public class MermaidRepresentation implements Representation {
 
     private String nameOf(Vertex vertex) {
         if (vertex instanceof Domain domain) {
-            var result = new StringBuilder();
-            result.append("\"<b>").append(domain.name()).append("</b>\n");
-            domain.contents().stream()
-                    .map(this::nameAndTypeOf)
-                    .sorted()
-                    .map("    %s%n"::formatted)
-                    .forEach(result::append);
-            result.deleteCharAt(result.length() - 1);
-            result.append('"');
-            return result.toString();
+            return "\"%s\"".formatted(contentOf(domain));
         }
         return vertex.name();
     }
 
-    private String nameAndTypeOf(Vertex step) {
-        return "%s: %s".formatted(typeOf(step), step.name());
+    private String contentOf(Domain domain) {
+        var result = new StringBuilder();
+        result.append("<b>").append(domain.name()).append("</b>\n");
+        domain.contents().stream()
+                .map(this::contentOfDomainElement)
+                .sorted()
+                .map("%s%n"::formatted)
+                .forEach(result::append);
+        result.deleteCharAt(result.length() - 1);
+        return result.toString();
+    }
+
+    private String contentOfDomainElement(Vertex vertex) {
+        if (vertex instanceof Domain domain) {
+            return "\n    %s".formatted(contentOf(domain));
+        }
+        return "    %s: %s".formatted(typeOf(vertex), vertex.name());
     }
 
     private char typeOf(Vertex step) {

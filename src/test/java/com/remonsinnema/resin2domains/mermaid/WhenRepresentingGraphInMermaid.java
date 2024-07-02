@@ -15,6 +15,7 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class WhenRepresentingGraphInMermaid {
@@ -114,7 +115,7 @@ class WhenRepresentingGraphInMermaid {
 
         var mermaid = representation.apply(domains);
 
-        assertThat(mermaid, is("""
+        assertEquals("""
                 graph
                     domainDomain["<b>Domain</b>
                     A: agg
@@ -123,7 +124,35 @@ class WhenRepresentingGraphInMermaid {
                     P: apl
                     R: rdm"]
                 
-                """));
+                """, mermaid);
+    }
+
+    @Test
+    void shouldRenderDomainWithinDomain() {
+        var process = new SoftwareProcess();
+        var cmd = process.vertex(new Command("cmd"));
+        var agg = process.vertex(new Aggregate("agg", emptyList()));
+        var evt = process.vertex(new Event("evt"));
+        var rdm = process.vertex(new ReadModel("rdm", emptyList()));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var domains = new Domains();
+        domains.vertex(new Domain("Domain", Set.of(
+                new Domain("Subdomain", Set.of(cmd, agg, evt, rdm, apl)))));
+
+        var mermaid = representation.apply(domains);
+
+        assertEquals("""
+                graph
+                    domainDomain["<b>Domain</b>
+                
+                    <b>Subdomain</b>
+                    A: agg
+                    C: cmd
+                    E: evt
+                    P: apl
+                    R: rdm"]
+                
+                """, mermaid);
     }
 
 }

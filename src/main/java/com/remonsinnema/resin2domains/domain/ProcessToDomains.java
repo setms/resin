@@ -4,6 +4,7 @@ import com.remonsinnema.resin2domains.graph.*;
 import com.remonsinnema.resin2domains.process.*;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -219,32 +220,28 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
 
     private Domains merge(Domains source, Cycle cycle) {
         var result = new Domains();
-        var nonCycle = source.vertices()
+        source.vertices()
                 .filter(not(cycle::contains))
-                .toList();
-        nonCycle.forEach(result::vertex);
-        var domain = merge(cycle);
-        result.vertex(domain);
+                .toList().forEach(result::vertex);
+        var mergedDomain = merge(cycle);
+        result.vertex(mergedDomain);
         source.edges()
-                .map(edge -> merge(edge, cycle, domain))
+                .map(edge -> merge(edge, cycle, mergedDomain))
                 .filter(Objects::nonNull)
                 .forEach(edge -> result.edge(edge.from(), edge.to()));
         return result;
     }
 
     private Domain merge(Cycle cycle) {
-        var contents = cycle.vertices().stream()
+        var name = cycle.vertices().stream()
                 .map(Domain.class::cast)
                 .map(Domain::contents)
                 .flatMap(Collection::stream)
-                .collect(toSet());
-        var name = contents
-                .stream()
                 .filter(Aggregate.class::isInstance)
                 .map(Vertex::name)
                 .sorted()
                 .collect(joining("And"));
-        return new Domain(name, contents);
+        return new Domain(name, new HashSet<>(cycle.vertices()));
     }
 
     private Edge merge(Edge source, Cycle cycle, Domain cycleDomain) {

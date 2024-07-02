@@ -39,16 +39,21 @@ class WhenUsingCycles {
         var v4 = new TestVertex("v4");
         var c12341 = new Cycle(v1, v2, v3, v4, v1);
         var c1231 = new Cycle(v1, v2, v3, v1);
+        var c2342 = new Cycle(v2, v3, v4, v2);
 
         assertThat(c12341.compareTo(c12341), is(0));
         assertThat(c1231.compareTo(c12341), greaterThan(0));
         assertThat(c12341.compareTo(c1231), lessThan(0));
+        assertThat(c1231.compareTo(c2342), lessThan(0));
 
         assertThat(c12341.equals(c12341), is(true));
         assertThat(c12341.equals(c1231), is(false));
         assertThat(c12341.equals(v1), is(false));
 
         assertThat(c1231.hashCode(), not(is(0)));
+
+        assertThat(c1231.contains(v1), is(true));
+        assertThat(c1231.contains(v4), is(false));
     }
 
 }

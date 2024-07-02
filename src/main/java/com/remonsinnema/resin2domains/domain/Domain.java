@@ -14,7 +14,11 @@ public record Domain(String name, Set<Vertex> contents) implements Vertex {
     }
 
     public boolean contains(Vertex vertex) {
-        return contents.contains(vertex);
+        return contents.stream().anyMatch(content -> contains(content, vertex));
+    }
+
+    private boolean contains(Vertex content, Vertex vertex) {
+        return content.equals(vertex) || content instanceof Domain domain && domain.contains(vertex);
     }
 
     public void add(Vertex vertex) {
