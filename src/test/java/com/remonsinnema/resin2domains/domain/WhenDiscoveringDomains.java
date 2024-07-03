@@ -115,6 +115,127 @@ class WhenDiscoveringDomains {
     }
 
     @Test
+    void shouldAssignReadModelToOwnDomainWhenNotFedBySingleAggregate() {
+        var process = new SoftwareProcess();
+        var exs = process.vertex(new ExternalSystem("exs"));
+        var evt = process.vertex(new Event("evt"));
+        var rdm = process.vertex(new ReadModel("rdm", List.of("data")));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var cmd = process.vertex(new Command("cmd"));
+        var agg = process.vertex(new Aggregate("agg", List.of("data")));
+        process.edges(exs, evt, rdm, apl);
+        process.edges(evt, apl, cmd, agg);
+
+        var domains = new ProcessToDomains().apply(process);
+
+        assertThat(domains.vertices().count(), is(2L));
+        var readModelDomain = domains.find(rdm);
+        assertThat(readModelDomain.isPresent(), is(true));
+        assertThat(readModelDomain, not(is(domains.find(agg))));
+    }
+
+    @Test
+    void shouldAssignPolicyToDomainOfPrecedingAggregateIfItsCommandIsAcceptedByAnExternalSystem() {
+        var process = new SoftwareProcess();
+        var agg = process.vertex(new Aggregate("agg", List.of("data")));
+        var evt = process.vertex(new Event("evt"));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var cmd = process.vertex(new Command("cmd"));
+        var exs = process.vertex(new ExternalSystem("exs"));
+        process.edges(agg, evt, apl, cmd, exs);
+
+        var domains = new ProcessToDomains().apply(process);
+
+        var policyDomain = domains.find(apl);
+        assertThat(policyDomain.isPresent(), is(true));
+        assertThat(policyDomain, is(domains.find(agg)));
+    }
+
+    @Test
+    void shouldAssignPolicyToDomainOfFollowingAggregateIfItHandlesEventsFromMultipleDomains() {
+        var process = new SoftwareProcess();
+        var agg1 = process.vertex(new Aggregate("agg1", List.of("data1")));
+        var evt1 = process.vertex(new Event("evt1"));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var agg2 = process.vertex(new Aggregate("agg2", List.of("data2")));
+        var evt2 = process.vertex(new Event("evt2"));
+        var cmd = process.vertex(new Command("cmd"));
+        var agg = process.vertex(new Aggregate("agg", List.of("data")));
+        process.edges(agg1, evt1, apl, cmd, agg);
+        process.edges(agg2, evt2, apl);
+
+        var domains = new ProcessToDomains().apply(process);
+
+        var policyDomain = domains.find(apl);
+        assertThat(policyDomain.isPresent(), is(true));
+        assertThat(policyDomain, is(domains.find(agg)));
+    }
+
+    @Test
+    void shouldAssignPolicyToOwnDomainIfItMediatesExternalSystems() {
+        var process = new SoftwareProcess();
+        var exs1 = process.vertex(new ExternalSystem("exs1"));
+        var evt1 = process.vertex(new Event("evt1"));
+        var exs2 = process.vertex(new ExternalSystem("exs2"));
+        var evt2 = process.vertex(new Event("evt2"));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var cmd = process.vertex(new Command("cmd"));
+        var exs3 = process.vertex(new ExternalSystem("exs3"));
+        process.edges(exs1, evt1, apl, cmd, exs3);
+        process.edges(exs2, evt2, apl);
+
+        var domains = new ProcessToDomains().apply(process);
+
+        var policyDomain = domains.find(apl);
+        assertThat(policyDomain.isPresent(), is(true));
+        assertThat(policyDomain.get().contents(), containsInAnyOrder(evt1, evt2, apl));
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    @Test
+    void shouldAddDependenciesBetweenDomainsBasedOnEvents() {
+        var process = new SoftwareProcess();
+        var agg1 = process.vertex(new Aggregate("agg1", List.of("data1")));
+        var evt1 = process.vertex(new Event("evt1"));
+        var agg2 = process.vertex(new Aggregate("agg2", List.of("data2")));
+        var evt2 = process.vertex(new Event("evt2"));
+        var apl = process.vertex(new AutomaticPolicy("apl"));
+        var cmd = process.vertex((new Command("cmd")));
+        var exs = process.vertex(new ExternalSystem("exs"));
+        process.edges(agg1, evt1, apl, cmd, exs);
+        process.edges(agg2, evt2, apl);
+
+        var domains = new ProcessToDomains().apply(process);
+
+        var aplDomain = domains.find(apl).get();
+        var agg1Domain = domains.find(agg1).get();
+        var agg2Domain = domains.find(agg2).get();
+        assertThat(domains.edges().anyMatch(e -> e.from().equals(aplDomain) && e.to().equals(agg1Domain)), is(true));
+        assertThat(domains.edges().anyMatch(e -> e.from().equals(aplDomain) && e.to().equals(agg2Domain)), is(true));
+    }
+
+    @Test
+    void shouldMergeDomainsOnDependencyCycleIntoOne() {
+        var process = new SoftwareProcess();
+        var admin = process.vertex(new Person("admin"));
+        var createCustomer = process.vertex(new Command("createCustomer"));
+        var customers = process.vertex(new Aggregate("Customers", List.of("customer")));
+        var customerCreated = process.vertex(new Event("customerCreated"));
+        var checkBaseLocation = process.vertex(new AutomaticPolicy("checkBaseLocation"));
+        var createLocation = process.vertex(new Command("createLocation"));
+        var locations = process.vertex(new Aggregate("Locations", List.of("location")));
+        var locationCreated = process.vertex(new Event("locationCreated"));
+        var checkCustomerBaseLocation = process.vertex(new AutomaticPolicy("checkCustomerBaseLocation"));
+        var setBaseLocation = process.vertex(new Command("setBaseLocation"));
+        process.edges(admin, createCustomer, customers, customerCreated, checkBaseLocation, createLocation, locations,
+                locationCreated, checkCustomerBaseLocation, setBaseLocation, customers);
+
+        var domains = new ProcessToDomains().apply(process);
+
+        assertThat(domains.vertices().count(), is(1L));
+    }
+
+    @Test
     void shouldDiscoverGdprMiddlewareDomains() {
         var process = new SoftwareProcess();
 
@@ -254,6 +375,7 @@ class WhenDiscoveringDomains {
         log(domains);
 
         assertThat(domains.vertices().count(), is(6L));
+        assertThat(domains.edges().count(), is(6L));
     }
 
 }

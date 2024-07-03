@@ -73,8 +73,6 @@ class WhenDocumentingSoftwareProcesses {
                 process.connect(cmd, mpl));
         assertThrows(IllegalArgumentException.class, () ->
                 process.connect(cmd, rdm));
-        assertThrows(IllegalArgumentException.class, () ->
-                process.connect(cmd, exs));
 
         assertThrows(IllegalArgumentException.class, () ->
                 process.connect(agg, agg));

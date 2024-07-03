@@ -23,7 +23,7 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
         var result = new Domains();
         var dependencies = new ProcessToDependencies().apply(process);
 
-        assignAggregatesToDomains(dependencies, result);
+        assignAggregatesToDomains(process, result);
         assignReadModelsToDomains(dependencies, result);
         assignPoliciesToDomains(process, dependencies, result);
         addCommandsToDomainsContainingTheirAggregates(process, result);
@@ -110,12 +110,6 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
             readModelsDomains.iterator().next().add(policy);
             return;
         }
-        if (process.edgesTo(policy)
-                .filter(DomainEvent.class::isInstance)
-                .count() > 1) {
-            addPolicyToFollowingAggregatesDomain(policy, process, domains);
-            return;
-        }
         addPolicyToPrecedingAggregatesDomain(policy, process, domains);
     }
 
@@ -127,11 +121,8 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
                 .map(domains::find)
                 .flatMap(Optional::stream)
                 .collect(toSet());
-        if (followingAggregatesDomains.size() == 1) {
-            followingAggregatesDomains.iterator().next().add(policy);
-            return;
-        }
-        domains.add(Domain.from(policy));
+        assert followingAggregatesDomains.size() == 1;
+        followingAggregatesDomains.iterator().next().add(policy);
     }
 
     private void addCommandsToDomainsContainingTheirAggregates(SoftwareProcess process, Domains domains) {
@@ -203,6 +194,7 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
     private void addDependenciesBetweenPoliciesAndReadModels(SoftwareProcess process, Domain domain, Domains domains) {
         domain.contents(Policy.class)
                 .flatMap(process::edgesTo)
+                .filter(ReadModel.class::isInstance)
                 .map(domains::find)
                 .flatMap(Optional::stream)
                 .filter(not(domain::equals))

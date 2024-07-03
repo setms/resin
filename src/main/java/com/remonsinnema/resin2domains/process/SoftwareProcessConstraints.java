@@ -18,7 +18,7 @@ class SoftwareProcessConstraints implements Constraints {
         Command.class, List.of(Person.class, Policy.class, ExternalSystem.class),
         Event.class, List.of(Aggregate.class, ExternalSystem.class),
         ClockEvent.class, List.of(),
-        ExternalSystem.class, List.of(Person.class, Event.class),
+        ExternalSystem.class, List.of(Person.class, Command.class, Event.class),
         Person.class, List.of(ReadModel.class),
         AutomaticPolicy.class, List.of(DomainEvent.class, ReadModel.class),
         ManualPolicy.class, List.of(DomainEvent.class, Person.class),
