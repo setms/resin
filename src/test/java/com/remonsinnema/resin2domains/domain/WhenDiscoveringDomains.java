@@ -229,10 +229,15 @@ class WhenDiscoveringDomains {
         var setBaseLocation = process.vertex(new Command("setBaseLocation"));
         process.edges(admin, createCustomer, customers, customerCreated, checkBaseLocation, createLocation, locations,
                 locationCreated, checkCustomerBaseLocation, setBaseLocation, customers);
+        var checkCustomerActions = process.vertex(new AutomaticPolicy("checkCustomerActions"));
+        var createActions = process.vertex(new Command("createActions"));
+        var actions = process.vertex(new Aggregate("Actions", List.of("action")));
+        process.edges(customerCreated, checkCustomerActions, createActions, actions);
 
         var domains = new ProcessToDomains().apply(process);
 
-        assertThat(domains.vertices().count(), is(1L));
+        assertThat(domains.vertices().count(), is(2L));
+        assertThat(domains.edges().count(), is(1L));
     }
 
     @Test
