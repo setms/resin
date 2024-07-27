@@ -1,7 +1,9 @@
 [versions]
 hamcrest = "2.2"
 junit = "5.10.2"
+snakeyaml = "2.2"
 
 [libraries]
 hamcrest = { module = 'org.hamcrest:hamcrest', version.ref = 'hamcrest' }
 junit = { module = 'org.junit.jupiter:junit-jupiter', version.ref = 'junit' }
+snakeyaml = { module = 'org.yaml:snakeyaml', version.ref = "snakeyaml" }

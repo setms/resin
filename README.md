@@ -1,3 +1,3 @@
-# resin2domains
+# RESIN: Rigorous Event Storming Icon Notation
 
-Convert requirements in RESIN format to a directed graph of domains.
+Work with software processes expressed in [RESIN](https://www.setms.org/synthesis/requirements.html).
