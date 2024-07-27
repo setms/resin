@@ -4,7 +4,7 @@ plugins {
     id 'info.solidsoft.pitest' version '1.15.0'
 }
 
-group = 'com.remonsinnema.resin2domains'
+group = 'com.remonsinnema.resin'
 
 repositories {
     mavenCentral()
