@@ -16,7 +16,7 @@ jobs:
           distribution: temurin
       - name: Update version number
         run: |
-          VERSION_NUMBER=$(date +'%Y%m%d')-${{github.run_number}}-${{github.run_attempt}}"
+          VERSION_NUMBER=$(date +'%Y%m%d')-${{github.run_number}}.${{github.run_attempt}}
           echo "Setting version to $VERSION_NUMBER"
           sed -i "s/^version=.*/version=$VERSION_NUMBER/" gradle.properties
       - name: Build and publish package
