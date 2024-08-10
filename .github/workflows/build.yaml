@@ -20,6 +20,7 @@ jobs:
         run: |
           VERSION_NUMBER=$(date +'%Y%m%d')-${{github.run_number}}.${{github.run_attempt}}
           sed -i "s/^version=.*/version=$VERSION_NUMBER/" core/gradle.properties
+          sed -i "s/^version=.*/version=$VERSION_NUMBER/" maven-plugin/gradle.properties
       - name: Build and publish package --no-daemon --console=plain
         run: ./gradlew build publish
         env:

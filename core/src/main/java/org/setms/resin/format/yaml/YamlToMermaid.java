@@ -17,13 +17,19 @@ public class YamlToMermaid implements Function<File, File> {
     public File apply(File file) {
         var process = new YamlToSoftwareProcess().apply(file);
         var mermaid = new MermaidRepresentation().apply(process);
-        var result = new File(outputDir, file.getName().replace(".yaml", ".mmd"));
+        var result = new File(outputDir, toOutputName(file));
         try (var writer = new FileWriter(result)) {
             writer.write(mermaid);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to write MermaidJS output to " + result, e);
         }
         return result;
+    }
+
+    private String toOutputName(File file) {
+        return file.getName()
+                .replace(".yaml", ".mmd")
+                .replace(".yml", ".mmd");
     }
 
 }
