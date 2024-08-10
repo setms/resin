@@ -5,7 +5,7 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'org.setms'
+group = 'org.setms.resin'
 
 repositories {
     mavenCentral()
@@ -33,6 +33,7 @@ pitest {
 tasks.named('pitest') {
     dependsOn test
 }
+check.dependsOn('pitest')
 
 publishing {
     publications {

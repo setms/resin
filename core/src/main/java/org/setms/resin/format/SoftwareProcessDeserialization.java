@@ -2,8 +2,7 @@ package org.setms.resin.format;
 
 import org.setms.resin.process.SoftwareProcess;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
@@ -19,6 +18,14 @@ public interface SoftwareProcessDeserialization extends Function<InputStream, So
 
     default SoftwareProcess apply(byte[] bytes) {
         return apply(new ByteArrayInputStream(bytes));
+    }
+
+    default SoftwareProcess apply(File file) {
+        try (var input = new FileInputStream(file)) {
+            return apply(input);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to read software process from " + file, e);
+        }
     }
 
 }
