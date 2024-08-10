@@ -5,7 +5,7 @@ import org.setms.resin.graph.Edge;
 import org.setms.resin.graph.Vertex;
 
 
-public class DomainConstraints implements Constraints {
+class DomainConstraints implements Constraints {
 
     @Override
     public boolean canAddVertex(Vertex vertex) {

@@ -4,6 +4,9 @@ import org.setms.resin.graph.Graph;
 import org.setms.resin.graph.Vertex;
 
 
+/**
+ * A graph representation of a process, to be executed by software.
+ */
 public class SoftwareProcess extends Graph {
 
     public SoftwareProcess() {

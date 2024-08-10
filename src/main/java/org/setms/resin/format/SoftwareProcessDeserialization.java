@@ -8,7 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
 
-public interface SoftwareProcessSerialization extends Function<InputStream, SoftwareProcess> {
+/**
+ * Deserializes a {@link SoftwareProcess} from some external representation.
+ */
+public interface SoftwareProcessDeserialization extends Function<InputStream, SoftwareProcess> {
 
     default SoftwareProcess apply(String text) {
         return apply(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)));

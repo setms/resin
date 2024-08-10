@@ -10,6 +10,9 @@ import static java.lang.Character.toLowerCase;
 import static java.lang.Character.toUpperCase;
 
 
+/**
+ * A representation of a graph in Mermaid format.
+ */
 public class MermaidRepresentation implements Representation {
 
     @Override

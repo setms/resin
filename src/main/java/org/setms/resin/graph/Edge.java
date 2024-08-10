@@ -3,6 +3,9 @@ package org.setms.resin.graph;
 import lombok.NonNull;
 
 
+/**
+ * An edge in a graph, connecting to vertices.
+ */
 public record Edge(@NonNull Vertex from, @NonNull Vertex to) implements Comparable<Edge> {
 
     public boolean equals(Vertex start, Vertex end) {

@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 
+/**
+ * A directed graph, consisting of vertices and edges between them.
+ */
 @RequiredArgsConstructor
 public class Graph {
 
@@ -83,19 +86,7 @@ public class Graph {
 
     @Override
     public String toString() {
-        var result = new StringBuilder();
-        result.append("graph {\n");
-        vertices()
-                .map(Vertex::name)
-                .sorted()
-                .map("    %s\n"::formatted)
-                .forEach(result::append);
-        edges().map(Edge::toString)
-                .sorted()
-                .map("    %s\n"::formatted)
-                .forEach(result::append);
-        result.append("}");
-        return result.toString();
+        return new SimpleRepresentation().apply(this);
     }
 
     @Override

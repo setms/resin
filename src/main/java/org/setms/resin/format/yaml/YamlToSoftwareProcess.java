@@ -3,8 +3,7 @@ package org.setms.resin.format.yaml;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-import org.setms.resin.format.SoftwareProcessSerialization;
+import org.setms.resin.format.SoftwareProcessDeserialization;
 import org.setms.resin.graph.Vertex;
 import org.setms.resin.process.*;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -16,30 +15,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class YamlToSoftwareProcess implements SoftwareProcessSerialization {
+
+/**
+ * Deserializes a {@link SoftwareProcess} from a YAML file.
+ */
+public class YamlToSoftwareProcess implements SoftwareProcessDeserialization {
 
     @Override
     public SoftwareProcess apply(InputStream input) {
         Root root = new Yaml(new Constructor(Root.class, new LoaderOptions())).load(input);
         var result = new SoftwareProcess();
         var verticesByName = new HashMap<String, Vertex>();
-        root.getProcess().getElements().forEach((name, element) -> {
-            var vertex = switch (element.getType()) {
-                case "read-model" -> result.element(new ReadModel(name, element.getData()));
-                case "person" -> result.element(new Person(name));
-                case "command" -> result.element(new Command(name));
-                case "aggregate" -> result.element(new Aggregate(name, element.getData()));
-                case "event" -> result.element(new Event(name));
-                case "automatic-policy" -> result.element(new AutomaticPolicy(name));
-                case "external-system" -> result.element(new ExternalSystem(name));
-                default -> throw new IllegalStateException("Unexpected element type: " + element.getType());
-            };
-            verticesByName.put(name, vertex);
-        });
-        root.getProcess().getFlows().forEach(flow -> {
-            result.connect(flow.getFlow().stream().map(verticesByName::get).toArray(Vertex[]::new));
-        });
+        root.getProcess().getElements().forEach((name, element) ->
+                verticesByName.put(name, addVertexFrom(element, name, result)));
+        root.getProcess().getFlows().forEach(flow ->
+                result.connect(flow.getFlow().stream()
+                        .map(verticesByName::get)
+                        .toArray(Vertex[]::new)));
         return result;
+    }
+
+    private Vertex addVertexFrom(Element element, String name, SoftwareProcess process) {
+        return switch (element.getType()) {
+            case "read-model" -> process.element(new ReadModel(name, element.getData()));
+            case "person" -> process.element(new Person(name));
+            case "command" -> process.element(new Command(name));
+            case "aggregate" -> process.element(new Aggregate(name, element.getData()));
+            case "event" -> process.element(new Event(name));
+            case "automatic-policy" -> process.element(new AutomaticPolicy(name));
+            case "external-system" -> process.element(new ExternalSystem(name));
+            default -> throw new IllegalStateException("Unexpected element type: " + element.getType());
+        };
     }
 
     @Data

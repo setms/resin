@@ -1,6 +1,9 @@
 package org.setms.resin.graph;
 
 
+/**
+ * A vertex (node) in a graph.
+ */
 public interface Vertex extends Comparable<Vertex> {
 
     String name();

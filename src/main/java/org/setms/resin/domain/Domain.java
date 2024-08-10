@@ -7,6 +7,11 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 
+/**
+ * A domain is a set of active event storming items: aggregates, events, commands, policies, and read models.
+ * @param name the name of the domain
+ * @param contents the active event storming items making up the domain
+ */
 public record Domain(String name, Set<Vertex> contents) implements Vertex {
 
     public static Domain from(Vertex vertex) {

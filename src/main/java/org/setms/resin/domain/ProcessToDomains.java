@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.function.Predicate.not;
@@ -16,6 +15,9 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 
 
+/**
+ * Transform a {@linkplain SoftwareProcess} into {@linkplain Domains}.
+ */
 public class ProcessToDomains implements Transformation<SoftwareProcess, Domains> {
 
     @Override
@@ -36,14 +38,11 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
     }
 
     private void assignAggregatesToDomains(Graph graph, Domains domains) {
-        graph.vertices(Aggregate.class)
-                .map(Domain::from)
-                .forEach(domains::add);
+        graph.vertices(Aggregate.class).map(Domain::from).forEach(domains::add);
     }
 
     private void assignReadModelsToDomains(SoftwareProcessDependencies dependencies, Domains domains) {
-        dependencies.vertices(ReadModel.class)
-                .forEach(readModel -> addToDomain(readModel, dependencies, domains));
+        dependencies.vertices(ReadModel.class).forEach(readModel -> addToDomain(readModel, dependencies, domains));
     }
 
     private void addToDomain(ReadModel readModel, SoftwareProcessDependencies dependencies, Domains domains) {
@@ -60,9 +59,7 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
 
     private void assignPoliciesToDomains(SoftwareProcess process, SoftwareProcessDependencies dependencies,
             Domains domains) {
-        dependencies.vertices(Policy.class)
-                .forEach(policy -> addPolicyToDomain(policy, process, domains));
-
+        dependencies.vertices(Policy.class).forEach(policy -> addPolicyToDomain(policy, process, domains));
     }
 
     private void addPolicyToDomain(Policy policy, SoftwareProcess process, Domains domains) {
@@ -77,7 +74,7 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
         var eventSources = process.edgesTo(policy)
                 .filter(DomainEvent.class::isInstance)
                 .flatMap(process::edgesTo)
-                .collect(Collectors.toSet());
+                .collect(toSet());
         switch (eventSources.size()) {
             case 0 -> addPolicyToFollowingAggregatesDomain(policy, process, domains);
             case 1 -> addPolicyToReadModelsDomain(policy, process, domains);
@@ -126,34 +123,32 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
     }
 
     private void addCommandsToDomainsContainingTheirAggregates(SoftwareProcess process, Domains domains) {
-        process.vertices()
-                .filter(Command.class::isInstance)
-                .forEach(command -> addToDomainContaining(command, process::edgesFrom, Aggregate.class, domains));
+        process.vertices(Command.class).forEach(command ->
+                addToDomainContaining(command, process::edgesFrom, Aggregate.class, domains));
     }
 
     private void addToDomainContaining(Vertex vertex, Function<Vertex, Stream<Vertex>> edgesBy,
-                                       Class<? extends Vertex> type, Domains domains) {
+            Class<? extends Vertex> type, Domains domains) {
         var containingDomains = edgesBy.apply(vertex)
                 .filter(type::isInstance)
                 .map(domains::find)
                 .flatMap(Optional::stream)
-                .collect(Collectors.toSet());
+                .collect(toSet());
         if (containingDomains.size() == 1) {
             containingDomains.iterator().next().add(vertex);
         }
     }
 
     private void addEventsToDomainsContainingTheirAggregates(SoftwareProcess process, Domains domains) {
-        process.vertices()
-                .filter(DomainEvent.class::isInstance)
-                .forEach(event -> addToDomainContaining(event, process::edgesTo, Aggregate.class, domains));
+        process.vertices(DomainEvent.class).forEach(event ->
+                addToDomainContaining(event, process::edgesTo, Aggregate.class, domains));
     }
 
     private void addUnassignedEventsToDomainsContainingTheirPolicies(SoftwareProcess process, Domains domains) {
-        process.vertices()
-                .filter(DomainEvent.class::isInstance)
+        process.vertices(DomainEvent.class)
                 .filter(not(domains::contains))
-                .forEach(event -> addToDomainContainingItsPolicy(event, process, domains));
+                .forEach(event ->
+                        addToDomainContainingItsPolicy(event, process, domains));
     }
 
     private void addToDomainContainingItsPolicy(Vertex event, SoftwareProcess process, Domains domains) {
@@ -167,11 +162,9 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
     }
 
     private void addDependenciesBetweenDomains(SoftwareProcess process, Class<? extends Vertex> type,
-            Function<Vertex, Stream<Vertex>> dependees, Function<Vertex, Stream<Vertex>> dependentsOn,
-            Domains domains) {
-        process.vertices()
-                .filter(type::isInstance)
-                .forEach(v -> addDependenciesBetweenDomains(v, dependees, dependentsOn, domains));
+            Function<Vertex, Stream<Vertex>> dependees, Function<Vertex, Stream<Vertex>> dependentsOn, Domains domains) {
+        process.vertices().filter(type::isInstance).forEach(v ->
+                addDependenciesBetweenDomains(v, dependees, dependentsOn, domains));
     }
 
     private void addDependenciesBetweenDomains(Vertex vertex, Function<Vertex, Stream<Vertex>> dependendees,
@@ -179,11 +172,13 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
         dependendees.apply(vertex)
                 .map(domains::find)
                 .flatMap(Optional::stream)
-                .forEach(dependee -> dependentsOn.apply(vertex)
-                        .map(domains::find)
-                        .flatMap(Optional::stream)
-                        .filter(not(dependee::equals))
-                        .forEach(dependentOn -> domains.edge(dependee, dependentOn)));
+                .forEach(dependee ->
+                        dependentsOn.apply(vertex)
+                                .map(domains::find)
+                                .flatMap(Optional::stream)
+                                .filter(not(dependee::equals))
+                                .forEach(dependentOn ->
+                                        domains.edge(dependee, dependentOn)));
     }
 
     private void addDependenciesBetweenPoliciesAndReadModels(SoftwareProcess process, Domains domains) {
@@ -198,7 +193,8 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
                 .map(domains::find)
                 .flatMap(Optional::stream)
                 .filter(not(domain::equals))
-                .forEach(dependsOn -> domains.edge(domain, dependsOn));
+                .forEach(dependsOn ->
+                        domains.edge(domain, dependsOn));
     }
 
     private Domains mergeDomains(Domains domains) {
@@ -214,13 +210,13 @@ public class ProcessToDomains implements Transformation<SoftwareProcess, Domains
         var result = new Domains();
         source.vertices()
                 .filter(not(cycle::contains))
-                .toList().forEach(result::vertex);
+                .forEach(result::vertex);
         var mergedDomain = merge(cycle);
         result.vertex(mergedDomain);
-        source.edges()
-                .map(edge -> merge(edge, cycle, mergedDomain))
+        source.edges().map(edge -> merge(edge, cycle, mergedDomain))
                 .filter(Objects::nonNull)
-                .forEach(edge -> result.edge(edge.from(), edge.to()));
+                .forEach(edge ->
+                        result.edge(edge.from(), edge.to()));
         return result;
     }
 

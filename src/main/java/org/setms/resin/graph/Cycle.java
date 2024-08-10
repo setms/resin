@@ -5,6 +5,10 @@ import java.util.Arrays;
 import java.util.SequencedCollection;
 
 
+/**
+ * A sequence of graph vertices that starts and ends at the same vertex.
+ * @param vertices the vertices that make up the cycle
+ */
 public record Cycle(SequencedCollection<Vertex> vertices) implements Comparable<Cycle> {
 
     public Cycle {

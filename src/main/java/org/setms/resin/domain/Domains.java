@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 
+/**
+ * A graph of {@linkplain Domain}s.
+ */
 public class Domains extends Graph {
 
     public Domains() {
@@ -23,7 +26,7 @@ public class Domains extends Graph {
     }
 
     private Stream<Domain> domains() {
-        return vertices().map(Domain.class::cast);
+        return vertices(Domain.class);
     }
 
     public Optional<Domain> find(Vertex vertex) {

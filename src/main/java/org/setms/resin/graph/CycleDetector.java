@@ -3,7 +3,7 @@ package org.setms.resin.graph;
 import java.util.Collection;
 
 
-public interface CycleDetector {
+interface CycleDetector {
 
     Collection<Cycle> findAllCyclesIn(Graph graph);
 
