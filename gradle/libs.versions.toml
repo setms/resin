@@ -4,7 +4,7 @@ junit = "5.10.2"
 maven-annotations = "3.13.1"
 maven-api = "3.0"
 mockito = "5.12.0"
-resin = "20240810-27.1"
+resin = "20240810-29.1"
 snakeyaml = "2.2"
 
 [libraries]

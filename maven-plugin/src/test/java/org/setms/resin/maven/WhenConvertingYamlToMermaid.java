@@ -68,8 +68,8 @@ public class WhenConvertingYamlToMermaid {
             mojo.execute();
             try {
                 assertOutput("foo.mmd");
-                assertOutput("bar.yml");
-                verify(log).info("Generated bar.yml, foo.mmd");
+                assertOutput("bar.mmd");
+                verify(log).info("Generated bar.mmd, foo.mmd");
             } finally {
                 delete(OUTPUT_DIR);
             }
