@@ -26,3 +26,5 @@ jobs:
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_PACKAGE_USERNAME: ${{ secrets.GH_PACKAGE_USERNAME }}
+          GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
