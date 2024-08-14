@@ -80,3 +80,4 @@ tasks.register('replaceVersion', Copy.class) {
     mustRunAfter processResources
 }
 jar.dependsOn replaceVersion
+compileTestJava.dependsOn replaceVersion
