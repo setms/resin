@@ -7,7 +7,7 @@
   <goalPrefix>resin</goalPrefix>
   <mojos>
     <mojo>
-      <goal>yaml-to-resin</goal>
+      <goal>yaml-to-mermaid</goal>
       <description>Convert YAML files in src/main/resin to MermaidJS diagrams</description>
       <implementation>org.setms.resin.maven.ResinMojo</implementation>
     </mojo>
