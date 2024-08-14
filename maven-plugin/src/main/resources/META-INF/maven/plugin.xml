@@ -4,13 +4,12 @@
   <version>${version}</version>
   <name>RESIN Maven plugin</name>
   <description>Make RESIN functionality available in Maven</description>
-  <goals>
-    <goal>
-      <groupId>org.setms.resin</groupId>
-      <artifactId>resin-maven-plugin</artifactId>
-      <version>${version}</version>
-      <goalPrefix>resin</goalPrefix>
-      <mojo>org.setms.resin.maven.ResinMojo</mojo>
-    </goal>
-  </goals>
+  <goalPrefix>resin</goalPrefix>
+  <mojos>
+    <mojo>
+      <goal>yaml-to-resin</goal>
+      <description>Convert YAML files in src/main/resin to MermaidJS diagrams</description>
+      <implementation>org.setms.resin.maven.ResinMojo</implementation>
+    </mojo>
+  </mojos>
 </plugin>
