@@ -1,12 +1,10 @@
 <plugin>
   <groupId>org.setms.resin</groupId>
   <artifactId>resin-maven-plugin</artifactId>
-  <version>1.0.0</version>
+  <version>${version}</version>
   <name>RESIN Maven plugin</name>
   <description>Make RESIN functionality available in Maven</description>
   <goals>
-    <goal>
-
-    </goal>
+    <goal>yaml-to-mermaid</goal>
   </goals>
 </plugin>

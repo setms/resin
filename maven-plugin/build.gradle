@@ -10,7 +10,7 @@ group = 'org.setms.resin'
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://maven.pkg.github.com/setms/resin")
+        url = uri('https://maven.pkg.github.com/setms/resin')
         credentials {
             username = System.getenv("GH_PACKAGE_USERNAME")
             password = System.getenv("GH_PACKAGE_TOKEN")
@@ -66,3 +66,17 @@ publishing {
         }
     }
 }
+
+tasks.named('publishMavenJavaPublicationToGitHubPackagesRepository') {
+    dependsOn check
+}
+
+tasks.register('replaceVersion', Copy.class) {
+    from 'src/main/resources/META-INF/maven'
+    into layout.buildDirectory.dir('resources/main/META-INF/maven')
+    include 'plugin.xml'
+
+    expand('version': project.version)
+    mustRunAfter processResources
+}
+jar.dependsOn replaceVersion
