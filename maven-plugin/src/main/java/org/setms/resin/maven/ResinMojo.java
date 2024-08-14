@@ -1,20 +1,17 @@
 package org.setms.resin.maven;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
-
-import org.setms.resin.format.yaml.YamlToMermaid;
+import static java.util.stream.Collectors.joining;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_RESOURCES;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.setms.resin.format.yaml.YamlToMermaid;
 
-import static java.util.stream.Collectors.joining;
-import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_SOURCES;
-
-@Mojo(name = "yaml-to-mermaid", defaultPhase = PROCESS_SOURCES)
+@Mojo(name = "yaml-to-mermaid", defaultPhase = PROCESS_RESOURCES)
 public class ResinMojo extends AbstractMojo {
 
     private static final File OUTPUT_DIR = new File("target/resin");

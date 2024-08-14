@@ -5,6 +5,12 @@
   <name>RESIN Maven plugin</name>
   <description>Make RESIN functionality available in Maven</description>
   <goals>
-    <goal>yaml-to-mermaid</goal>
+    <goal>
+      <groupId>org.setms.resin</groupId>
+      <artifactId>resin-maven-plugin</artifactId>
+      <version>${version}</version>
+      <goalPrefix>resin</goalPrefix>
+      <mojo>org.setms.resin.maven.ResinMojo</mojo>
+    </goal>
   </goals>
 </plugin>
