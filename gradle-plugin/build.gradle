@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'io.freefair.lombok' version '8.6'
+//    id 'info.solidsoft.pitest' version '1.15.0'
+    id 'com.gradle.plugin-publish' version '1.2.2'
+    id 'java-gradle-plugin'
+    //id 'signing'
+    id 'com.gradleup.shadow' version '8.3.0'
+}
+
+group = 'org.setms.resin'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = uri('https://maven.pkg.github.com/setms/resin')
+        credentials {
+            username = System.getenv("GH_PACKAGE_USERNAME")
+            password = System.getenv("GH_PACKAGE_TOKEN")
+        }
+    }
+}
+
+dependencies {
+    implementation libs.resin
+    testImplementation libs.junit
+    testImplementation libs.hamcrest
+    testImplementation libs.mockito
+}
+
+test {
+    useJUnitPlatform()
+}
+
+/*
+def userHomeDir = System.properties['user.home']
+def pitestHistoryFilePath = "${userHomeDir}/.pitest/cache/${project.group}.${project.name}.${project.version}_pitest_history.bin"
+pitest {
+    junit5PluginVersion = '1.2.1'
+    mutationThreshold = 90
+    historyInputLocation = pitestHistoryFilePath
+    historyOutputLocation = pitestHistoryFilePath
+    features = ["+auto_threads"]
+}
+tasks.named('pitest') {
+    dependsOn test
+}
+check.dependsOn('pitest')
+ */
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'resin-gradle-plugin'
+            from components.java
+        }
+    }
+}
+
+gradlePlugin {
+    website = 'https://github.com/setms/resin'
+    vcsUrl = 'https://github.com/setms/resin'
+    plugins {
+        resinPlugin {
+            id = 'org.setms.resin.gradle-plugin'
+            implementationClass = 'org.setms.resin.gradle.ResinPlugin'
+            displayName = 'Gradle RESIN plugin'
+            description = 'Gradle plugin to process RESIN files'
+            tags.set(['resin'])
+        }
+    }
+}

@@ -14,7 +14,9 @@ public class YamlToMermaid implements Function<File, File> {
     private final File outputDir;
 
     @Override
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public File apply(File file) {
+        outputDir.mkdirs();
         var process = new YamlToSoftwareProcess().apply(file);
         var mermaid = new MermaidRepresentation().apply(process);
         var result = new File(outputDir, toOutputName(file));
