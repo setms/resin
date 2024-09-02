@@ -8,6 +8,9 @@ import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.setms.resin.format.yaml.YamlToMermaid;
 
+/**
+ * Task to convert RESIN files to Mermaid files.
+ */
 @Getter(onMethod_ = @InputDirectory)
 @Setter
 public class ResinToMermaidTask extends DefaultTask {

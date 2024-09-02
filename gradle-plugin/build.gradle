@@ -70,3 +70,5 @@ gradlePlugin {
         }
     }
 }
+
+publish.dependsOn publishPlugins
