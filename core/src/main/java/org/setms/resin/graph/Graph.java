@@ -13,90 +13,89 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class Graph {
 
-    private final Collection<Vertex> vertices = new ArrayList<>();
-    private final Collection<Edge> edges = new ArrayList<>();
-    private final Constraints constraints;
-    private final CycleDetector cycleDetector;
+  private final Collection<Vertex> vertices = new ArrayList<>();
+  private final Collection<Edge> edges = new ArrayList<>();
+  private final Constraints constraints;
+  private final CycleDetector cycleDetector;
 
-    public Graph(Constraints constraints) {
-        this(constraints, new DetectCyclesViaExhaustiveSearch());
-    }
+  public Graph(Constraints constraints) {
+    this(constraints, new DetectCyclesViaExhaustiveSearch());
+  }
 
-    public <T extends Vertex> T vertex(T vertex) {
-        if (constraints.canAddVertex(vertex)) {
-            if (!vertices.contains(vertex)) {
-                vertices.add(vertex);
-            }
-            return vertex;
-        }
-        throw new IllegalArgumentException("Can't add %s".formatted(vertex));
+  public <T extends Vertex> T vertex(T vertex) {
+    if (!constraints.canAddVertex(vertex)) {
+      throw new IllegalArgumentException("Can't add %s".formatted(vertex));
     }
+    if (!vertices.contains(vertex)) {
+      vertices.add(vertex);
+    }
+    return vertex;
+  }
 
-    public void edge(Vertex from, Vertex to) {
-        if (!vertices.contains(from)) {
-            throw new IllegalArgumentException("Unknown <from> vertex %s".formatted(from));
-        }
-        if (!vertices.contains(to)) {
-            throw new IllegalArgumentException("Unknown <to> vertex %s".formatted(to));
-        }
-        var result = new Edge(from, to);
-        if (edges.contains(result)) {
-            return;
-        }
-        if (constraints.canAddEdge(result)) {
-            edges.add(result);
-            return;
-        }
-        throw new IllegalArgumentException("Can't add edge %s".formatted(result));
+  public void edge(Vertex from, Vertex to) {
+    if (!vertices.contains(from)) {
+      throw new IllegalArgumentException("Unknown <from> vertex %s".formatted(from));
     }
+    if (!vertices.contains(to)) {
+      throw new IllegalArgumentException("Unknown <to> vertex %s".formatted(to));
+    }
+    var result = new Edge(from, to);
+    if (edges.contains(result)) {
+      return;
+    }
+    if (!constraints.canAddEdge(result)) {
+      throw new IllegalArgumentException("Can't add edge %s".formatted(result));
+    }
+    edges.add(result);
+  }
 
-    public void edges(Vertex... nodes) {
-        for (var i = 1; i < nodes.length; i++) {
-            edge(nodes[i - 1], nodes[i]);
-        }
+  public void edges(Vertex... nodes) {
+    for (var i = 1; i < nodes.length; i++) {
+      edge(nodes[i - 1], nodes[i]);
     }
+  }
 
-    public Stream<? extends Vertex> vertices() {
-        return vertices.stream();
-    }
+  public Stream<? extends Vertex> vertices() {
+    return vertices.stream();
+  }
 
-    public <T extends Vertex> Stream<T> vertices(Class<T> type) {
-        return vertices.stream()
-                .filter(type::isInstance)
-                .map(type::cast);
-    }
+  public <T extends Vertex> Stream<T> vertices(Class<T> type) {
+    return vertices.stream()
+        .filter(type::isInstance)
+        .map(type::cast);
+  }
 
-    public Stream<Edge> edges() {
-        return edges.stream();
-    }
+  public Stream<Edge> edges() {
+    return edges.stream();
+  }
 
-    public Stream<Vertex> edgesFrom(Vertex from) {
-        return edges().filter(e -> e.from().equals(from))
-                .map(Edge::to);
-    }
+  public Stream<Vertex> verticesConnectedFrom(Vertex from) {
+    return edges().filter(e -> e.from().equals(from))
+        .map(Edge::to);
+  }
 
-    public Stream<Vertex> edgesTo(Vertex to) {
-        return edges().filter(e -> e.to().equals(to))
-                .map(Edge::from);
-    }
+  public Stream<Vertex> verticesConnectedTo(Vertex to) {
+    return edges().filter(e -> e.to().equals(to))
+        .map(Edge::from);
+  }
 
-    public Collection<Cycle> cycles() {
-        return cycleDetector.findAllCyclesIn(this);
-    }
+  public Collection<Cycle> cycles() {
+    return cycleDetector.findAllCyclesIn(this);
+  }
 
-    @Override
-    public String toString() {
-        return new SimpleRepresentation().apply(this);
-    }
+  @Override
+  public String toString() {
+    return new SimpleRepresentation().apply(this);
+  }
 
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
 
-    @Override
-    public boolean equals(Object other) {
-        return other instanceof Graph that && this.toString().equals(that.toString());
-    }
+  @Override
+  public boolean equals(Object other) {
+    return other instanceof Graph that && this.toString().equals(that.toString());
+  }
 
 }

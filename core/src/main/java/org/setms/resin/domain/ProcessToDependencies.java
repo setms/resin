@@ -26,7 +26,7 @@ class ProcessToDependencies implements Transformation<SoftwareProcess, SoftwareP
 
     private boolean isAutomatedActiveElement(Vertex vertex) {
         return Stream.of(Aggregate.class, ReadModel.class, AutomaticPolicy.class)
-                .anyMatch(type -> type.isInstance(vertex));
+                .anyMatch(vertex.getClass()::isAssignableFrom);
     }
 
     private Stream<Edge> edgesFor(Vertex vertex, SoftwareProcess process) {
@@ -35,29 +35,30 @@ class ProcessToDependencies implements Transformation<SoftwareProcess, SoftwareP
                     edgesForAggregate(aggregate, process);
             case AutomaticPolicy policy ->
                 edgesForPolicy(policy, process);
-            default ->
-                edgesForReadModel((ReadModel) vertex, process);
+            case ReadModel readModel ->
+                edgesForReadModel(readModel, process);
+            default -> Stream.empty();
         };
     }
 
     private Stream<Edge> edgesForAggregate(Aggregate aggregate, SoftwareProcess process) {
-        return process.edgesTo(aggregate)
+        return process.verticesConnectedTo(aggregate)
                 .filter(Command.class::isInstance)
-                .flatMap(process::edgesTo)
+                .flatMap(process::verticesConnectedTo)
                 .filter(AutomaticPolicy.class::isInstance)
                 .map(policy -> new Edge(aggregate, policy));
     }
 
     private Stream<Edge> edgesForPolicy(Policy policy, SoftwareProcess process) {
-        return process.edgesTo(policy)
+        return process.verticesConnectedTo(policy)
                 .filter(ReadModel.class::isInstance)
                 .map(readModel -> new Edge(policy, readModel));
     }
 
     private Stream<Edge> edgesForReadModel(ReadModel readModel, SoftwareProcess process) {
-        return process.edgesTo(readModel)
+        return process.verticesConnectedTo(readModel)
                 .filter(DomainEvent.class::isInstance)
-                .flatMap(process::edgesTo)
+                .flatMap(process::verticesConnectedTo)
                 .filter(Aggregate.class::isInstance)
                 .map(Aggregate.class::cast)
                 .filter(readModel::sharesDataItemsWith)

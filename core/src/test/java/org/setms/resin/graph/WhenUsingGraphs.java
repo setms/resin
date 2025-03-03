@@ -70,7 +70,7 @@ class WhenUsingGraphs {
     }
 
     @Test
-    void shouldCreateMultipleEdgesFromSuccessiveVertices() {
+    void shouldCreateMultipleVerticesConnectedFromSuccessiveVertices() {
         var v1 = graph.vertex(new TestVertex());
         var v2 = graph.vertex(new TestVertex());
         var v3 = graph.vertex(new TestVertex());
@@ -82,7 +82,7 @@ class WhenUsingGraphs {
     }
 
     @Test
-    void shouldFindEdgesFromAndToVertex() {
+    void shouldFindVerticesConnectedFromAndToVertex() {
         var v1 = graph.vertex(new TestVertex("v1"));
         var v2 = graph.vertex(new TestVertex("v2"));
         var v3 = graph.vertex(new TestVertex("v3"));
@@ -90,12 +90,12 @@ class WhenUsingGraphs {
         graph.edges(v1, v2, v3);
         graph.edge(v1, v3);
 
-        assertThat(graph.edgesFrom(v1).sorted().toList(), is(List.of(v2, v3)));
-        assertThat(graph.edgesFrom(v2).sorted().toList(), is(List.of(v3)));
-        assertThat(graph.edgesFrom(v3).sorted().toList(), is(List.of()));
-        assertThat(graph.edgesTo(v1).toList(), is(List.of()));
-        assertThat(graph.edgesTo(v2).sorted().toList(), is(List.of(v1)));
-        assertThat(graph.edgesTo(v3).sorted().toList(), is(List.of(v1, v2)));
+        assertThat(graph.verticesConnectedFrom(v1).sorted().toList(), is(List.of(v2, v3)));
+        assertThat(graph.verticesConnectedFrom(v2).sorted().toList(), is(List.of(v3)));
+        assertThat(graph.verticesConnectedFrom(v3).sorted().toList(), is(List.of()));
+        assertThat(graph.verticesConnectedTo(v1).toList(), is(List.of()));
+        assertThat(graph.verticesConnectedTo(v2).sorted().toList(), is(List.of(v1)));
+        assertThat(graph.verticesConnectedTo(v3).sorted().toList(), is(List.of(v1, v2)));
     }
 
     @Test
